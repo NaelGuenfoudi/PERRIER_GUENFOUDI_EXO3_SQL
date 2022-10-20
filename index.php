@@ -52,7 +52,6 @@ switch ($page) {
                        </form>';
         } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $retour = $rqtCar->listerVehicules($_POST['cat'], $_POST['dateDbt'], $_POST['datef']);
-            echo $retour;
         }
         break;
     case 'quest2':
@@ -65,13 +64,14 @@ switch ($page) {
             }
             $retour .= "</select><br>";
 
-            $retour .= '<form action="index.php?action=quest1" method="post">
+            $retour = '<form action="index.php?action=quest2" method="post">
+                       <p>Categorie : <input type="text" name="cat" /></p>
                        <p>date debut : <input type="date" name="dateDbt" /></p>
                        <p>date fin:<input type="date" name="datef"</p>
                        <p><input type="submit" value="OK"></p>
                        </form>';
         } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $retour.=$rqtCar->updateCalendrier($_POST['immat'],$_POST['dateDbt'],$_POST['datef']);//renvoie juste bien inserer , si c'est le cas
+            $rqtCar->updateCalendrier($_POST['immat'],$_POST['dateDbt'],$_POST['datef']);//renvoie juste bien inserer , si c'est le cas
         }
         break;
     case 'quest3':

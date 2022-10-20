@@ -32,19 +32,37 @@ class RequeteCar
         }
         return $str;
     }
-    public function updateCalendrier($imm,$datedbt,$datef){
-        $stm1 = $this->bdd->prepare("UPDATE Calendrier SET paslibre = 'x' WHERE no_imm = :imm AND datejour BETWEEN TO_DATE(:datedbt,'DD/MM/YYYY') AND TO_DATE(:datefin,'DD/MM/YYYY')"
-        );
-        $stm1->bindParam(':imm', $imm);
-        $stm1->bindParam(':datedbt', $_POST['dateDbt']);
-        $stm1->bindParam(':datefin', $_POST['datef']);
-        try {
-            $stm1->execute();
-            $str='bien inseré';
-        } catch (Exception $e) {
-            $str= "pas inséré";
+    public function updateCalendrier($no_imm,$dateD,$dateF){
+        $requeteCheckLibre = "select * from calendrier where (datejour between str_to_date(?,'%Y-%m-%d') and str_to_date(?,'%Y-%m-%d')) and no_imm = ?";
+        $stm1= $this->bdd->prepare($requeteCheckLibre);
+        $stm1->bindParam(1, $dateD);
+        $stm1->bindParam(2, $dateF);
+        $stm1->bindParam(3, $no_imm);
+        $stm1->execute();
+
+        $flagToutLibre = true;
+        echo "debug";
+        echo count($stm1->fetch()[0]);
+        while ($donnees = $stm1->fetch(PDO::FETCH_ASSOC)) {
+            echo $donnees['no_imm'];
+            if ($donnees['paslibre'] === 'x') {
+                $flagToutLibre = false;
+            }
         }
-        return $str;
+
+        echo $flagToutLibre;
+//        $stm1 = $this->bdd->prepare("UPDATE Calendrier SET paslibre = 'x' WHERE no_imm = :imm AND datejour BETWEEN TO_DATE(:datedbt,'DD/MM/YYYY') AND TO_DATE(:datefin,'DD/MM/YYYY')"
+//        );
+//        $stm1->bindParam(':imm', $imm);
+//        $stm1->bindParam(':datedbt', $_POST['dateDbt']);
+//        $stm1->bindParam(':datefin', $_POST['datef']);
+//        try {
+//            $stm1->execute();
+//            $str='bien inseré';
+//        } catch (Exception $e) {
+//            $str= "pas inséré";
+//        }
+        return null;
     }
 }
 
