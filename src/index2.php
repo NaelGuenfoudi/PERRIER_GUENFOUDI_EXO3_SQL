@@ -1,6 +1,17 @@
 <?php
+
+use questionnaire\RequeteCar;
+
 try {
-    $bdd = new PDO('mysql:host=localhost;dbname=locationCar;charset=utf8', 'root', 'Nadog54244');
+
+    $config = parse_ini_file('../dbData.ini'); //mettre le fichier de config à la racine du projet
+    $driver = $config['driver'];
+    $host = $config['host'];
+    $dbname = $config['dbname'];
+    $dsn = "$driver:host=$host; dbname=" . $dbname;
+    $username = $config['username'];
+    $password = $config['password'];
+    $bdd = new PDO($dsn, $username, $password);
 } catch (Exception $e) {
     die('erreur: ' . $e->getMessage());
 }
@@ -20,16 +31,24 @@ if (isset($_GET['action'])) {
         <option value="quest2"<?php if ($page == "quest2") {
             echo " selected";
         } ?>>quest2
-        </option>
-        <option value="add-podcasttrack"<?php if ($page == "add-podcasttrack") {
+        <option value="quest3"<?php if ($page == "quest3") {
             echo " selected";
-        } ?>>add podcast
+        } ?>>quest3
+        </option>
+        <option value="quest4"<?php if ($page == "quest4") {
+            echo " selected";
+        } ?>>quest4
+        </option>
+        <option value="quest5"<?php if ($page == "quest5") {
+            echo " selected";
+        } ?>>quest5
         </option>
     </select>
 </form>
 
 <?php
 $retour = "";
+$rqtCar = new RequeteCar($bdd);
 switch ($page) {
     case 'quest1':
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -40,20 +59,7 @@ switch ($page) {
                        <p><input type="submit" value="OK"></p>
                        </form>';
         } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $stm1 = $bdd->prepare("SELECT DISTINCT v.no_imm,v.modele FROM Vehicule v, Categorie ca 
-                WHERE v.code_categ = ca.code_categ 
-                   AND ca.libelle LIKE :categorie
-                   AND no_imm NOT IN (SELECT DISTINCT no_imm FROM Calendrier 
-                WHERE paslibre LIKE 'x' 
-            AND datejour BETWEEN :datedbt AND :datefin)");
-            $stm1->bindParam(':categorie', $_POST['cat']);
-            $stm1->bindParam(':datedbt', $_POST['dateDbt']);
-            $stm1->bindParam(':datefin', $_POST['datef']);
-            $stm1->execute();
-            while ($data = $stm1->fetch()) {
-                echo $data[0] . ";" . $data[1];
-            }
-
+            $retour = $rqtCar->listerVehicules($_POST['cat'], $_POST['dateDbt'], $_POST['datef']);
         }
         break;
     case 'quest2':
@@ -85,10 +91,12 @@ switch ($page) {
             }
 
         }
-
-
         break;
-    case 'add-podcasttrack':
+    case 'quest3':
+        break;
+    case 'quest4':
+        break;
+    case 'quest5':
         break;
     default:
         $retour = 'Bienvenue !';
