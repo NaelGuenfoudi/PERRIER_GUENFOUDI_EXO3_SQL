@@ -1,7 +1,6 @@
 <?php
 
-use questionnaire\RequeteCar;
-
+require_once ("RequeteCar.php");
 try {
 
     $config = parse_ini_file('../dbData.ini'); //mettre le fichier de config à la racine du projet
@@ -78,17 +77,7 @@ switch ($page) {
                        <p><input type="submit" value="OK"></p>
                        </form>';
         } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $stm1 = $bdd->prepare("UPDATE Calendrier SET paslibre = 'x' WHERE no_imm = :imm AND datejour BETWEEN TO_DATE(:datedbt,'DD/MM/YYYY') AND TO_DATE(:datefin,'DD/MM/YYYY')"
-            );
-            $stm1->bindParam(':imm', $_POST['immat']);
-            $stm1->bindParam(':datedbt', $_POST['dateDbt']);
-            $stm1->bindParam(':datefin', $_POST['datef']);
-            try {
-                $stm1->execute();
-                echo "bonne insertion";
-            } catch (Exception $e) {
-                echo "pas inséré";
-            }
+            $retour.=$rqtCar->updateCalendrier($_POST['immat'],$_POST['dateDbt'],$_POST['datef']);//renvoie juste bien inserer , si c'est le cas
 
         }
         break;
@@ -101,7 +90,7 @@ switch ($page) {
     default:
         $retour = 'Bienvenue !';
 }
-echo $retour;
+echo $retour;// il faut que tu recupere ça et que tu le fous dans le code html
 ?>
         
         

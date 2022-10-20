@@ -1,6 +1,6 @@
 <?php
 
-namespace questionnaire;
+
 class RequeteCar
 {
 
@@ -32,6 +32,20 @@ class RequeteCar
         $stm1->execute();
         while ($donnees = $stm1->fetch(PDO::FETCH_ASSOC)) {
             $str .= "Le vehicule " . $donnees['imm'] . " de modele " . $donnees['mod'] . " est disponible";
+        }
+        return $str;
+    }
+    public function updateCalendrier($imm,$datedbt,$datef){
+        $stm1 = $this->bdd->prepare("UPDATE Calendrier SET paslibre = 'x' WHERE no_imm = :imm AND datejour BETWEEN TO_DATE(:datedbt,'DD/MM/YYYY') AND TO_DATE(:datefin,'DD/MM/YYYY')"
+        );
+        $stm1->bindParam(':imm', $imm);
+        $stm1->bindParam(':datedbt', $_POST['dateDbt']);
+        $stm1->bindParam(':datefin', $_POST['datef']);
+        try {
+            $stm1->execute();
+            $str='bien inseré';
+        } catch (Exception $e) {
+            $str= "pas inséré";
         }
         return $str;
     }
