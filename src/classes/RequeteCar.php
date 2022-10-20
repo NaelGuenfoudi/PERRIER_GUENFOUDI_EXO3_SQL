@@ -1,14 +1,16 @@
 <?php
 
+require_once 'src/classes/ConnectionFactory.php';
 
 class RequeteCar
 {
 
-    private $bdd;
+    private object $bdd;
 
-    public function __construct($bddP)
+    public function __construct()
     {
-        $this->bdd = $bddP;
+        ConnectionFactory::setConfig('dbData.ini'); //mettre le fichier de config à la racine du projet
+        $this->bdd = ConnectionFactory::makeConnection();
     }
 
     /**
@@ -18,20 +20,15 @@ class RequeteCar
      * @param $datef
      * @return string
      */
-    public function listerVehicules($cat, $dateDbt, $datef)
-    {
-        $stm1 = $this->bdd->prepare("SELECT DISTINCT v.no_imm as imm,v.modele as mod FROM Vehicule v, Categorie ca 
-                WHERE v.code_categ = ca.code_categ 
-                   AND ca.libelle LIKE :categorie
-                   AND no_imm NOT IN (SELECT DISTINCT no_imm FROM Calendrier 
-                WHERE paslibre LIKE 'x' 
-            AND datejour BETWEEN :datedbt AND :datefin)");
-        $stm1->bindParam(':categorie', $cat);
-        $stm1->bindParam(':datedbt', $dateDbt);
-        $stm1->bindParam(':datefin', $datef);
+    public function listerVehicules($cat, $dateDbt, $datef) {
+        $stm1 = $this->bdd->prepare("select distinct vehicule.no_imm, vehicule.modele from calendrier, vehicule where vehicule.no_imm = calendrier.no_imm and (datejour between str_to_date(?,'%Y-%m-%d') and str_to_date(?,'%Y-%m-%d')) and vehicule.no_imm IN (select no_imm from vehicule where code_categ = ?)");
+        $stm1->bindParam(1, $dateDbt);
+        $stm1->bindParam(2, $datef);
+        $stm1->bindParam(3, $cat);
         $stm1->execute();
+        $str = "";
         while ($donnees = $stm1->fetch(PDO::FETCH_ASSOC)) {
-            $str .= "Le vehicule " . $donnees['imm'] . " de modele " . $donnees['mod'] . " est disponible";
+            $str .= "Le vehicule " . $donnees['no_imm'] . " de modele " . $donnees['modele'] . " est disponible</br>";
         }
         return $str;
     }
