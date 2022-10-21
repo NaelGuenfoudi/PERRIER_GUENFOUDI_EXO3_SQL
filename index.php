@@ -8,6 +8,8 @@ if (isset($_GET['action'])) {
     $page = $_GET['action'];
 }
 
+echo GestionHTML::menu();
+
 $rqtCar = new RequeteCar();
 switch ($page) {
     case 'requete 1':
@@ -46,6 +48,5 @@ switch ($page) {
         echo GestionHTML::accueil();
 }
 
-echo GestionHTML::menu();
 
 ?>

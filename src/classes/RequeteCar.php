@@ -19,7 +19,7 @@ class RequeteCar {
      * @param $datef
      * @return string
      */
-    public function requete1($cat, $dateD, $dateF) {
+    public function requete1($cat, $dateD, $dateF) : string {
         $stm1 = $this->bdd->prepare("select distinct vehicule.no_imm, vehicule.modele from calendrier, vehicule 
                                                 where vehicule.no_imm = calendrier.no_imm 
                                                   and (datejour between str_to_date(?,'%Y-%m-%d') and str_to_date(?,'%Y-%m-%d')) 
@@ -41,7 +41,7 @@ class RequeteCar {
     }
 
 
-    public function requete2($no_imm, $dateD, $dateF){
+    public function requete2($no_imm, $dateD, $dateF) : string {
         $requeteCheckLibre = "select paslibre from calendrier where (datejour between str_to_date(?,'%Y-%m-%d') and str_to_date(?,'%Y-%m-%d')) and no_imm = ?";
         $stm2a= $this->bdd->prepare($requeteCheckLibre);
         $stm2a->bindParam(1, $dateD);
@@ -76,7 +76,7 @@ class RequeteCar {
     }
 
 
-    public function requete3($modele, $nbJours) {
+    public function requete3($modele, $nbJours) : string {
         $stm3=$this->bdd->prepare("select tarif.tarif_jour, tarif.tarif_hebdo from tarif, vehicule, categorie where vehicule.modele = ? and categorie.code_categ = vehicule.code_categ and categorie.code_tarif = tarif.code_tarif");
         $stm3->bindParam(1,$modele);
         $stm3->execute();
@@ -97,9 +97,11 @@ class RequeteCar {
     public function requete4() : string {
         $stm4=$this->bdd->query("select code_ag from agence where not exists (select code_categ from categorie where code_categ not in (select code_categ from vehicule where code_ag = agence.code_ag));");
         $retour = "Les agences suivantes ont toutes les catégories de véhicules : </br>";
+        $retour .= "<ul>";
         while ($donnes = $stm4->fetch(PDO::FETCH_ASSOC)) {
-            $retour .= $donnes['code_ag']."</br>";
+            $retour .= "<li>".$donnes['code_ag']."</li></br>";
         }
+        $retour .= "</ul>";
         return $retour;
     }
 
@@ -107,9 +109,11 @@ class RequeteCar {
         $stm5=$this->bdd->query("SELECT nom,ville,codpostal FROM client, dossier, vehicule WHERE client.code_cli = dossier.code_cli AND dossier.no_imm=vehicule.no_imm GROUP BY nom,ville,codpostal HAVING COUNT(DISTINCT modele)>=2");
 
         $retour = "Les clients suivants ont loués au moins deux véhicules différents : </br>";
+        $retour .= "<ul>";
         while ($donnes = $stm5->fetch(PDO::FETCH_ASSOC)) {
-            $retour .= $donnes['nom']." habitant à ".$donnes['ville']." (".$donnes['codpostal'].")</br>";
+            $retour .= "<li>".$donnes['nom']." habitant à ".$donnes['ville']." (".$donnes['codpostal'].")</li></br>";
         }
+        $retour .= "</ul>";
         return $retour;
     }
 }
