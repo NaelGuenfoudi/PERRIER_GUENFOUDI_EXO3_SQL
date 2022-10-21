@@ -37,62 +37,55 @@ if (isset($_GET['action'])) {
     </form>
 <?php
 
-$retour = "";
 $rqtCar = new RequeteCar();
 switch ($page) {
     case 'quest1':
-        // ELLE EST ENFIN RÉPARÉ LA REQUETE LÀ, TOUT MARCHE POUR LA 1, VICTOIRE
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-            $retour = '<form action="index.php?action=quest1" method="post">
-                       <p>Categorie : <input type="text" name="cat" /></p>
-                       <p>date debut : <input type="date" name="dateDbt" /></p>
-                       <p>date fin:<input type="date" name="datef"</p>
+
+            $retour = $rqtCar->listerCategories();
+
+            $retour .= '<p>date debut location : <input type="date" name="dateD" /></p>
+                       <p>date fin location :<input type="date" name="dateF"</p>
                        <p><input type="submit" value="OK"></p>
                        </form>';
         } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $retour = $rqtCar->listerVehicules($_POST['cat'], $_POST['dateDbt'], $_POST['datef']);
+            $retour = $rqtCar->listerVehicules($_POST['cat'], $_POST['dateD'], $_POST['dateF']);
         }
         break;
+
     case 'quest2':
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-            $retour = "<form method='post'><label>Categorie de véhicule: </label><select name='categorie' id='cat' required>";
-            $result = $bdd->query("select libelle from categorie");
-            while ($data = $result->fetch(PDO::FETCH_ASSOC)) {
-                $val = $data['libelle'];
-                $html .= "<option value='$val'>$val</option>"; // choix du libelle
-            }
-            $retour .= "</select><br>";
 
-            $retour = '<form action="index.php?action=quest2" method="post">
-                       <p>Categorie : <input type="text" name="cat" /></p>
-                       <p>date debut : <input type="date" name="dateDbt" /></p>
-                       <p>date fin:<input type="date" name="datef"</p>
+            $retour = $rqtCar->listerImmatriculations();
+
+            $retour .= '<p>date debut location : <input type="date" name="dateDbt" /></p>
+                       <p>date fin location :<input type="date" name="datef"</p>
                        <p><input type="submit" value="OK"></p>
                        </form>';
         } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $rqtCar->updateCalendrier($_POST['immat'],$_POST['dateDbt'],$_POST['datef']);//renvoie juste bien inserer , si c'est le cas
         }
         break;
+
     case 'quest3':
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-            $retour = '<form action="index.php?action=quest3" method="post">
-                       <p>Modele : <input type="text" name="modele" /></p>
-                       <p>Nombre de jours :<input type="number" name="nbJours"</p>
+            $retour = $rqtCar->listerModeles();
+            $retour .= '<p>Nombre de jours :<input type="number" name="nbJours"</p>
                        <p><input type="submit" value="OK"></p>
                        </form>';
         } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $retour = $rqtCar->calculerPrix($_POST['modele'], $_POST['nbJours']);
         }
         break;
+
     case 'quest4':
         $retour = $rqtCar->agencesAvecToutesCategories();
         break;
+
     case 'quest5':
         $retour = $rqtCar->clients2Modeles();
         break;
-    case 'accueil' :
-        echo "bienvenue dans l accueil";
-        break;
+
     default:
         $retour = 'Bienvenue !';
 }

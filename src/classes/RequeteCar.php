@@ -20,13 +20,13 @@ class RequeteCar
      * @param $datef
      * @return string
      */
-    public function listerVehicules($cat, $dateDbt, $datef) {
+    public function listerVehicules($cat, $dateD, $dateF) {
         $stm1 = $this->bdd->prepare("select distinct vehicule.no_imm, vehicule.modele from calendrier, vehicule 
                                                 where vehicule.no_imm = calendrier.no_imm 
                                                   and (datejour between str_to_date(?,'%Y-%m-%d') and str_to_date(?,'%Y-%m-%d')) 
                                                   and (vehicule.no_imm IN (select no_imm from vehicule where code_categ = ?))");
-        $stm1->bindParam(1, $dateDbt);
-        $stm1->bindParam(2, $datef);
+        $stm1->bindParam(1, $dateD);
+        $stm1->bindParam(2, $dateF);
         $stm1->bindParam(3, $cat);
         $stm1->execute();
         $str = "";
@@ -34,6 +34,18 @@ class RequeteCar
             $str .= "Le vehicule " . $donnees['no_imm'] . " de modele " . $donnees['modele'] . " est disponible</br>";
         }
         return $str;
+    }
+
+    public function listerCategories() {
+        $stm11 = $this->bdd->query("select code_categ from categorie");
+
+        $retour = "<form method='post'><label>Categorie de véhicule: </label><select name='cat' id='cat' required>";
+        while ($data = $stm11->fetch(PDO::FETCH_ASSOC)) {
+            $val = $data['code_categ'];
+            $retour .= "<option value='$val'>$val</option>"; // choix du libelle
+        }
+        $retour .= "</select><br>";
+        return $retour;
     }
 
 
@@ -46,8 +58,7 @@ class RequeteCar
         $stm1->execute();
 
         $flagToutLibre = true;
-        echo "debug";
-        echo count($stm1->fetch()[0]);
+
         while ($donnees = $stm1->fetch(PDO::FETCH_ASSOC)) {
             echo $donnees['no_imm'];
             if ($donnees['paslibre'] === 'x') {
@@ -69,16 +80,44 @@ class RequeteCar
 //        }
         return null;
     }
+
+    public function listerImmatriculations() {
+        $stm21 = $this->bdd->query("select no_imm from vehicule");
+
+        $retour = "<form method='post'><label>Immatriculation du vehicule : </label><select name='no_imm' id='no_imm' required>";
+        while ($data = $stm21->fetch(PDO::FETCH_ASSOC)) {
+            $val = $data['no_imm'];
+            $retour .= "<option value='$val'>$val</option>"; // choix du libelle
+        }
+        $retour .= "</select><br>";
+
+        return $retour;
+    }
+
+
     public function calculerPrix($modele,$nbJours) {
-        $stm1=$this->bdd->prepare("select tarif.tarif_jour, tarif.tarif_hebdo from tarif, vehicule, categorie where vehicule.modele = ? and categorie.code_categ = vehicule.code_categ and categorie.code_tarif = tarif.code_tarif");
-        $stm1->bindParam(1,$modele);
-        $stm1->execute();
+        $stm3=$this->bdd->prepare("select tarif.tarif_jour, tarif.tarif_hebdo from tarif, vehicule, categorie where vehicule.modele = ? and categorie.code_categ = vehicule.code_categ and categorie.code_tarif = tarif.code_tarif");
+        $stm3->bindParam(1,$modele);
+        $stm3->execute();
 
         $retour = "";
-        while ($donnees = $stm1->fetch(PDO::FETCH_ASSOC)) {
+        while ($donnees = $stm3->fetch(PDO::FETCH_ASSOC)) {
             $tarif = (($nbJours - ($nbJours%7))/7 * $donnees['tarif_hebdo'] + ($nbJours%7)*$donnees['tarif_jour']);
             $retour.= "La voiture $modele est au prix de $tarif"."€ pour une durée de $nbJours jours";
         }
+        return $retour;
+    }
+
+    public function listerModeles() {
+        $stm31 = $this->bdd->query("select modele from vehicule");
+
+        $retour = "<form method='post'><label>Immatriculation du vehicule : </label><select name='modele' id='modele' required>";
+        while ($data = $stm31->fetch(PDO::FETCH_ASSOC)) {
+            $val = $data['modele'];
+            $retour .= "<option value='$val'>$val</option>"; // choix du libelle
+        }
+        $retour .= "</select><br>";
+
         return $retour;
     }
 
@@ -97,7 +136,7 @@ class RequeteCar
 
         $retour = "Les clients suivants ont loués au moins deux véhicules différents : </br>";
         while ($donnes = $stm5->fetch(PDO::FETCH_ASSOC)) {
-            $retour .= $donnes['nom']." habitant à ".$donnes['ville']." ".$donnes['codpostal']."</br>";
+            $retour .= $donnes['nom']." habitant à ".$donnes['ville']." (".$donnes['codpostal'].")</br>";
         }
         return $retour;
     }
