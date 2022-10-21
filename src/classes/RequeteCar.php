@@ -35,6 +35,8 @@ class RequeteCar
         }
         return $str;
     }
+
+
     public function updateCalendrier($no_imm,$dateD,$dateF){
         $requeteCheckLibre = "select * from calendrier where (datejour between str_to_date(?,'%Y-%m-%d') and str_to_date(?,'%Y-%m-%d')) and no_imm = ?";
         $stm1= $this->bdd->prepare($requeteCheckLibre);
@@ -67,10 +69,37 @@ class RequeteCar
 //        }
         return null;
     }
-    public function calculerPrix($modele,$nbJour){
-        $stm1=$this->bdd->prepare("select t.tarif_jour, t.tarif_hebdo from tarif t, vehicule v, categorie c where v.modele = ? and c.code_categ = v.code_categ and c.code_tarif = t.code_tarif");
+    public function calculerPrix($modele,$nbJours) {
+        $stm1=$this->bdd->prepare("select tarif.tarif_jour, tarif.tarif_hebdo from tarif, vehicule, categorie where vehicule.modele = ? and categorie.code_categ = vehicule.code_categ and categorie.code_tarif = tarif.code_tarif");
         $stm1->bindParam(1,$modele);
+        $stm1->execute();
 
+        $retour = "";
+        while ($donnees = $stm1->fetch(PDO::FETCH_ASSOC)) {
+            $tarif = (($nbJours - ($nbJours%7))/7 * $donnees['tarif_hebdo'] + ($nbJours%7)*$donnees['tarif_jour']);
+            $retour.= "La voiture $modele est au prix de $tarif"."€ pour une durée de $nbJours jours";
+        }
+        return $retour;
+    }
+
+    public function agencesAvecToutesCategories() : string {
+        $stm4=$this->bdd->query("select code_ag from agence where not exists (select code_categ from categorie where code_categ not in (select code_categ from vehicule where code_ag = agence.code_ag));");
+
+        $retour = "Les agences suivantes ont toutes les catégories de véhicules : </br>";
+        while ($donnes = $stm4->fetch(PDO::FETCH_ASSOC)) {
+            $retour .= $donnes['code_ag']."</br>";
+        }
+        return $retour;
+    }
+
+    public function clients2Modeles() : string {
+        $stm5=$this->bdd->query("SELECT nom,ville,codpostal FROM client, dossier, vehicule WHERE client.code_cli = dossier.code_cli AND dossier.no_imm=vehicule.no_imm GROUP BY nom,ville,codpostal HAVING COUNT(DISTINCT modele)>=2");
+
+        $retour = "Les clients suivants ont loués au moins deux véhicules différents : </br>";
+        while ($donnes = $stm5->fetch(PDO::FETCH_ASSOC)) {
+            $retour .= $donnes['nom']." habitant à ".$donnes['ville']." ".$donnes['codpostal']."</br>";
+        }
+        return $retour;
     }
 }
 

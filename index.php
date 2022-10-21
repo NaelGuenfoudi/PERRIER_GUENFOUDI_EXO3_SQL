@@ -74,10 +74,21 @@ switch ($page) {
         }
         break;
     case 'quest3':
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            $retour = '<form action="index.php?action=quest3" method="post">
+                       <p>Modele : <input type="text" name="modele" /></p>
+                       <p>Nombre de jours :<input type="number" name="nbJours"</p>
+                       <p><input type="submit" value="OK"></p>
+                       </form>';
+        } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $retour = $rqtCar->calculerPrix($_POST['modele'], $_POST['nbJours']);
+        }
         break;
     case 'quest4':
+        $retour = $rqtCar->agencesAvecToutesCategories();
         break;
     case 'quest5':
+        $retour = $rqtCar->clients2Modeles();
         break;
     case 'accueil' :
         echo "bienvenue dans l accueil";
