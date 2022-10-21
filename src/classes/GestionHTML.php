@@ -1,7 +1,6 @@
 <?php
 
-class GestionHTML
-{
+class GestionHTML {
     public static function menu() : string {
         return
             '<form name="f1">
@@ -21,5 +20,22 @@ class GestionHTML
                     </option>
                 </select>
             </form>';
+    }
+
+    public function questionnaire1() {
+        $rqtCar = new RequeteCar();
+        $requete = $rqtCar->listerCategories();
+        $retour = "<form method='post'><label>Categorie de véhicule: </label><select name='cat' id='cat' required>";
+        while ($data = $requete) {
+            $val = $data['code_categ'];
+            $retour .= "<option value='$val'>$val</option>"; // choix du libelle
+        }
+        $retour .= "</select><br>";
+
+        $retour .= '<p>date debut location : <input type="date" name="dateD" /></p>
+                       <p>date fin location :<input type="date" name="dateF"</p>
+                       <p><input type="submit" value="OK"></p>
+                       </form>';
+        return $retour;
     }
 }

@@ -63,7 +63,7 @@ switch ($page) {
                        <p><input type="submit" value="OK"></p>
                        </form>';
         } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $rqtCar->updateCalendrier($_POST['immat'],$_POST['dateDbt'],$_POST['datef']);//renvoie juste bien inserer , si c'est le cas
+            $retour = $rqtCar->updateCalendrier($_POST['no_imm'],$_POST['dateDbt'],$_POST['datef']);
         }
         break;
 
