@@ -4,8 +4,7 @@ require_once 'src/classes/RequeteCar.php';
 require_once 'src/classes/GestionHTML.php';
 require_once 'src/classes/ConnectionFactory.php';
 
-ConnectionFactory::setConfig('dbData.ini'); //mettre le fichier de config à la racine du projet
-$bdd = ConnectionFactory::makeConnection();
+
 
 $page = null;
 if (isset($_GET['action'])) {

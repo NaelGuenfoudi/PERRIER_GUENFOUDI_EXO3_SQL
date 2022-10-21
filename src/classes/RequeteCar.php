@@ -21,7 +21,10 @@ class RequeteCar
      * @return string
      */
     public function listerVehicules($cat, $dateDbt, $datef) {
-        $stm1 = $this->bdd->prepare("select distinct vehicule.no_imm, vehicule.modele from calendrier, vehicule where vehicule.no_imm = calendrier.no_imm and (datejour between str_to_date(?,'%Y-%m-%d') and str_to_date(?,'%Y-%m-%d')) and vehicule.no_imm IN (select no_imm from vehicule where code_categ = ?)");
+        $stm1 = $this->bdd->prepare("select distinct vehicule.no_imm, vehicule.modele from calendrier, vehicule 
+                                                where vehicule.no_imm = calendrier.no_imm 
+                                                  and (datejour between str_to_date(?,'%Y-%m-%d') and str_to_date(?,'%Y-%m-%d')) 
+                                                  and vehicule.no_imm IN (select no_imm from vehicule where code_categ = ?)");
         $stm1->bindParam(1, $dateDbt);
         $stm1->bindParam(2, $datef);
         $stm1->bindParam(3, $cat);
@@ -45,6 +48,11 @@ class RequeteCar
             $str= "pas inséré";
         }
         return $str;
+    }
+    public function calculerPrix($modele,$nbJour){
+        $stm1=$this->bdd->prepare("select t.tarif_jour, t.tarif_hebdo from tarif t, vehicule v, categorie c where v.modele = ? and c.code_categ = v.code_categ and c.code_tarif = t.code_tarif");
+        $stm1->bindParam(1,$modele);
+
     }
 }
 
